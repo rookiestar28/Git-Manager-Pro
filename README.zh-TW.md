@@ -26,7 +26,7 @@
 - **時光回溯 (Time Machine)**: **[新功能]** 批量將所有節點強制回退 (Reset) 到指定的時間點。當某次更新導致環境崩潰時的救命稻草。
 - **安全檢查**: 自動略過未設定上游追蹤 (Upstream) 的專案,保護您的本地修改不被覆蓋。
 
-### 工具 2: Auto Dependency Installer (`auto_install.py`)
+### 工具 2: Auto Dependency Installer (`auto_installer.py`)
 
 - **批次依賴安裝**: 掃描所有資料夾中的 `requirements.txt` 並自動安裝缺失的 Python 套件。
 - **即時串流輸出**: 在終端機中即時顯示下載與安裝進度。
@@ -38,8 +38,8 @@
 
 | 檔案名稱 | 說明 |
 |:---------|:-----|
-| `start_git_manager.bat` | **[啟動器]** Git Manager Pro 的互動式選單入口。 |
-| `start_install.bat` | **[啟動器]** 自動依賴安裝工具的入口。 |
+| `GitManagerPro.bat` | **[啟動器]** Git Manager Pro 的互動式選單入口。 |
+| `Auto_Installer.bat` | **[啟動器]** 自動依賴安裝工具的入口。 |
 | `manage_git_pro.py` | 執行 Git 相關操作的核心 Python 腳本 (V4)。 |
 | `auto_install.py` | 執行 Pip 安裝相關操作的核心 Python 腳本。 |
 
@@ -54,7 +54,7 @@
 
 ### 1. Git Manager Pro (版本管理)
 
-雙擊執行 `start_git_manager.bat`,選擇對應功能:
+雙擊執行 `GitManagerPro.bat`,選擇對應功能:
 
 - **[1] Auto Update All (全自動更新)**: 掃描並更新所有發現的 Git 專案。
 - **[2] Interactive Update (互動模式)**: 針對每個專案逐一詢問 (Y/N) 是否更新。
@@ -66,7 +66,7 @@
 
 ### 2. Auto Dependency Installer (依賴安裝)
 
-雙擊執行 `start_install.bat`。
+雙擊執行 `Auto_Installer.bat`。
 
 1. 腳本會自動偵測您的 Python 環境 (系統或便攜版)。
 2. 掃描所有子目錄的 `requirements.txt`。

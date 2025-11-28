@@ -1,4 +1,4 @@
-# Git Manager Pro: A most powerful toolkit for managing ComfyUI custom nodes.
+# Git Manager Pro: The most powerful toolkit for managing ComfyUI custom nodes.
 
 <div align="center">
     <strong>English</strong> | <a href="README.zh-TW.md"><strong>繁體中文</strong></a>
@@ -38,8 +38,8 @@ The ultimate solution for version control management.
 
 | File | Description |
 |:-----|:------------|
-| `start_git_manager.bat` | **[Launcher]** The entry point for Git Manager Pro. |
-| `start_install.bat` | **[Launcher]** The entry point for the Dependency Installer. |
+| `GitManagerPro.bat` | **[Launcher]** The entry point for Git Manager Pro. |
+| `Auto_Installer.bat` | **[Launcher]** The entry point for the Dependency Installer. |
 | `manage_git_pro.py` | The core Python script for Git operations (V4). |
 | `auto_install.py` | The core Python script for Pip operations. |
 
@@ -54,7 +54,7 @@ The ultimate solution for version control management.
 
 ### 1. Git Manager Pro
 
-Double-click `start_git_manager.bat` to launch the menu.
+Double-click `GitManagerPro.bat` to launch the menu.
 
 - **[1] Auto Update All**: Updates every Git repository found in the target directory.
 - **[2] Interactive Update**: Asks for confirmation (Y/N) before updating each repository.
@@ -66,7 +66,7 @@ Double-click `start_git_manager.bat` to launch the menu.
 
 ### 2. Auto Dependency Installer
 
-Double-click `start_install.bat`.
+Double-click `Auto_Installer.bat`.
 
 1. The script will automatically detect your Python environment (System or ComfyUI Portable).
 2. It scans all subdirectories for `requirements.txt`.
