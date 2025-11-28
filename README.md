@@ -1,4 +1,4 @@
-# Git Manager Pro: A most powerful toolkit for managing ComfyUI custom nodes.
+# Git Manager Pro: The most powerful toolkit for managing ComfyUI custom nodes.
 
 <div align="center">
     <strong>English</strong> | <a href="README.zh-TW.md"><strong>繁體中文</strong></a>
