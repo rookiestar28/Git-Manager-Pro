@@ -1,0 +1,4 @@
+# Examples:
+# https://github.com/ltdrdata/ComfyUI-Manager.git
+# https://github.com/cubiq/ComfyUI_IPAdapter_plus.git
+# https://github.com/Fannovel16/comfyui_controlnet_aux.git
