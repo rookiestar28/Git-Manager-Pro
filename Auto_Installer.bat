@@ -1,13 +1,15 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:: 設定視窗標題
-title Ray's AIGC Project Manager (Interactive)
+title Git Project Manager (Auto Installer)
 
-:: 設定編碼為 UTF-8
 chcp 65001 >nul
 
-:: 用於記錄環境是否已經被激活過 (0=否, 1=是)
+for /F %%a in ('echo prompt $E ^| cmd') do set "ESC=%%a"
+set "RED=%ESC%[91m"
+set "YELLOW=%ESC%[93m"
+set "RESET=%ESC%[0m"
+
 set ENV_ACTIVATED=0
 
 :: ==========================================================
@@ -15,7 +17,7 @@ set ENV_ACTIVATED=0
 :: ==========================================================
 cls
 echo ========================================================
-echo       AIGC Project Manager - Language Setup
+echo       Auto Installer - Language Setup
 echo ========================================================
 echo.
 echo  [1] English
@@ -35,7 +37,7 @@ timeout /t 1 >nul
 :MainMenu
 cls
 echo ========================================================
-echo       AIGC Project Manager - Main Menu
+echo       Auto Installer - Main Menu
 echo ========================================================
 echo.
 echo  [1] Batch Git Clone (Download Projects)
@@ -69,9 +71,29 @@ goto MainMenu
 echo.
 echo [Mode] Install Dependencies Selected.
 
-:: 如果已經激活過，詢問是否要重新激活
+echo.
+:: ==========================================================
+:: 【新增】紅色嚴重警告區域 (優化版)
+:: ==========================================================
+echo.
+:: 開頭開啟紅色，畫上邊框
+echo %RED%********************************************************
+echo.
+echo  CRITICAL WARNING
+echo.
+echo  Please ensure your Virtual Environment is ACTIVATED
+echo  before proceeding with dependency installation!
+echo.
+echo  【嚴重警告】
+echo  執行此步驟前，請務必確認您已「激活」虛擬環境！
+echo  (例如: conda activate comfyui 或 venv\Scripts\activate)
+echo.
+:: 結束邊框，重置顏色
+echo ********************************************************%RESET%
+echo.
+
 if "!ENV_ACTIVATED!"=="1" (
-    echo [*] Environment seems already activated. 
+    echo %YELLOW%[*] Environment seems already activated.%RESET%
     echo     Current Python: 
     where python
     echo.
@@ -102,9 +124,9 @@ echo [*] Executing: %ACT_CMD%
 call %ACT_CMD%
 
 if %errorlevel% neq 0 (
-    echo [Warning] Activation might have failed.
+    echo %RED%[Warning] Activation might have failed.%RESET%
 ) else (
-    echo [Success] Environment command executed.
+    echo %YELLOW%[Success] Environment command executed.%RESET%
     set ENV_ACTIVATED=1
 )
 

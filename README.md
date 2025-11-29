@@ -68,9 +68,11 @@ Double-click `GitManagerPro.bat` to launch the menu.
 
 Double-click `Auto_Installer.bat`.
 
-1. The script will automatically detect your Python environment (System or ComfyUI Portable).
-2. It scans all subdirectories for `requirements.txt`.
-3. It attempts to install dependencies and provides a colored summary report upon completion.
+1. **Virtual Environment Check**: The script will ask if you need to activate a specific environment (e.g., Conda, venv) before proceeding.
+   > ⚠️ **IMPORTANT**: If you are **not** using the ComfyUI Portable version, ensure you provide the activation command (e.g., `conda activate comfyui`) when prompted. This ensures packages are installed into the correct environment.
+2. The script detects the active Python environment.
+3. It scans all subdirectories for `requirements.txt`.
+4. It attempts to install dependencies and provides a colored summary report upon completion.
 
 ---
 

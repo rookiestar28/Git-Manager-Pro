@@ -68,9 +68,11 @@
 
 雙擊執行 `Auto_Installer.bat`。
 
-1. 腳本會自動偵測您的 Python 環境 (系統或便攜版)。
-2. 掃描所有子目錄的 `requirements.txt`。
-3. 開始安裝,並在結束時以顏色標示成功與失敗的項目。
+1. **虛擬環境檢查 (Virtual Environment Check)**：腳本會詢問您是否需要先激活特定的環境 (如 Conda 或 venv)。
+   > ⚠️ **重要提示**：如果您使用的是 **非攜帶版 (Non-Portable)** 的 ComfyUI，請務必在提示時輸入激活指令 (例如 `conda activate comfyui`)，以確保依賴項安裝到正確的環境中。
+2. 腳本自動偵測您的 Python 環境 (系統或便攜版)。
+3. 掃描所有子目錄的 `requirements.txt`。
+4. 開始安裝，並在結束時以顏色標示成功與失敗的項目。
 
 ---
 
