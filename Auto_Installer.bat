@@ -59,7 +59,8 @@ goto MainMenu
 echo.
 echo [Mode] Git Clone Selected.
 :: Pass the language argument here
-python auto_runner.py --clone %LANG_CMD%
+:: 【修改處 1】將 auto_runner.py 改為 auto_installer.py
+python auto_installer.py --clone %LANG_CMD%
 echo.
 pause
 goto MainMenu
@@ -139,7 +140,8 @@ echo --------------------------------------------------------
 echo.
 
 :: Pass the language argument here too
-python auto_runner.py --install %LANG_CMD%
+:: 【修改處 2】將 auto_runner.py 改為 auto_installer.py
+python auto_installer.py --install %LANG_CMD%
 
 echo.
 pause
