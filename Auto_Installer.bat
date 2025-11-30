@@ -11,10 +11,8 @@ set "YELLOW=%ESC%[93m"
 set "RESET=%ESC%[0m"
 
 set ENV_ACTIVATED=0
+set "PYTHON_CMD=python"
 
-:: ==========================================================
-:: Step 0: Language Selection (Global Setting)
-:: ==========================================================
 cls
 echo ========================================================
 echo       Auto Installer - Language Setup
@@ -40,9 +38,15 @@ echo ========================================================
 echo       Auto Installer - Main Menu
 echo ========================================================
 echo.
-echo  [1] Batch Git Clone (Download Projects)
-echo  [2] Batch Install Dependencies (pip install)
-echo  [3] Exit
+if "%L_CHOICE%"=="2" (
+    echo  [1] 批次複製專案 ^(Git Clone^)
+    echo  [2] 批次安裝依賴 ^(pip install requirements^)
+    echo  [3] 離開 ^(Exit^)
+) else (
+    echo  [1] Batch Git Clone ^(Download Projects^)
+    echo  [2] Batch Install Dependencies ^(pip install^)
+    echo  [3] Exit
+)
 echo.
 echo ========================================================
 set /p "CHOICE=Please enter your choice (1-3): "
@@ -52,102 +56,170 @@ if "%CHOICE%"=="2" goto CheckEnvAndInstall
 if "%CHOICE%"=="3" goto End
 goto MainMenu
 
-:: ----------------------------------------------------------
-:: Option 1: Git Clone (No special env needed)
-:: ----------------------------------------------------------
 :DoClone
 echo.
-echo [Mode] Git Clone Selected.
-:: Pass the language argument here
-:: 【修改處 1】將 auto_runner.py 改為 auto_installer.py
+if "%L_CHOICE%"=="2" (
+    echo [模式] 已選擇 Git Clone ^(複製專案^)。
+) else (
+    echo [Mode] Git Clone Selected.
+)
 python auto_installer.py --clone %LANG_CMD%
 echo.
 pause
 goto MainMenu
 
-:: ----------------------------------------------------------
-:: Option 2: Install Dependencies (Needs Environment)
-:: ----------------------------------------------------------
 :CheckEnvAndInstall
 echo.
-echo [Mode] Install Dependencies Selected.
+if "%L_CHOICE%"=="2" (
+    echo [模式] 已選擇安裝依賴組件。
+) else (
+    echo [Mode] Install Dependencies Selected.
+)
+
+set "SUGGESTED_PYTHON="
+set "PORTABLE_MSG="
+
+if exist "python_embeded\python.exe" set "SUGGESTED_PYTHON=python_embeded\python.exe"
+if exist "..\python_embeded\python.exe" set "SUGGESTED_PYTHON=..\python_embeded\python.exe"
+if exist "..\..\python_embeded\python.exe" set "SUGGESTED_PYTHON=..\..\python_embeded\python.exe"
+
+if defined SUGGESTED_PYTHON (
+    set "PORTABLE_MSG=[Detection] ComfyUI Portable Environment Found^!"
+)
 
 echo.
-:: ==========================================================
-:: 【新增】紅色嚴重警告區域 (優化版)
-:: ==========================================================
-echo.
-:: 開頭開啟紅色，畫上邊框
 echo %RED%********************************************************
 echo.
-echo  CRITICAL WARNING
+if "%L_CHOICE%"=="2" (
+    echo  嚴重警告 ^(CRITICAL WARNING^)
+    echo.
+    echo  執行此步驟前，請務必確認您已使用正確的 Python 環境！
+    echo  ^(若是 ComfyUI 便攜版，請使用嵌入式 Python^)
+) else (
+    echo  CRITICAL WARNING
+    echo.
+    echo  Please ensure your Virtual Environment is ACTIVATED!
+    echo  ^(For Portable users, use the embedded Python^)
+)
 echo.
-echo  Please ensure your Virtual Environment is ACTIVATED
-echo  before proceeding with dependency installation!
+
+if defined SUGGESTED_PYTHON (
+    if "%L_CHOICE%"=="2" (
+        echo  %YELLOW%[^!] 偵測到 ComfyUI Portable ^(便攜版^) 環境！%RED%
+        echo  建議路徑: %SUGGESTED_PYTHON%
+        echo  建議直接使用上述路徑，不要使用系統全域 Python。
+    ) else (
+        echo  %YELLOW%[^!] It seems you are using the Portable version.%RED%
+        echo  Suggested Path: %SUGGESTED_PYTHON%
+        echo  Do NOT use system Python. Use the embedded Python path.
+    )
+)
 echo.
-echo  【嚴重警告】
-echo  執行此步驟前，請務必確認您已「激活」虛擬環境！
-echo  (例如: conda activate comfyui 或 venv\Scripts\activate)
-echo.
-:: 結束邊框，重置顏色
 echo ********************************************************%RESET%
 echo.
 
 if "!ENV_ACTIVATED!"=="1" (
-    echo %YELLOW%[*] Environment seems already activated.%RESET%
-    echo     Current Python: 
-    where python
-    echo.
-    set /p "RE_ACT=Do you want to re-activate/change environment? (y/n): "
-    if /i "!RE_ACT!"=="y" goto AskEnv
-    goto RunInstall
+    if "%L_CHOICE%"=="2" (
+        echo %YELLOW%[*] 環境似乎已設定完畢。%RESET%
+        echo     當前 Python 指令: !PYTHON_CMD!
+        echo.
+        echo 請按 Enter 繼續安裝，或輸入 'r' 重新設定環境...
+        set /p "RE_ACT=> "
+    ) else (
+        echo %YELLOW%[*] Environment seems already activated/set.%RESET%
+        echo     Current Python Command: !PYTHON_CMD!
+        echo.
+        echo Press Enter to continue, or type 'r' to reset env...
+        set /p "RE_ACT=> "
+    )
+    
+    if /i "!RE_ACT!"=="r" goto AskEnv
+    goto RunInstallDirect
 )
 
 :AskEnv
 echo.
 echo --------------------------------------------------------
-echo [Requirement] Virtual Environment Check
-echo Do you need to activate a specific environment for pip install?
-echo (If you are already in the correct env, press 'n')
+if "%L_CHOICE%"=="2" (
+    echo [環境激活] 請輸入激活指令 ^(強制步驟^)
+    echo.
+    echo 常用指令範例 ^(可複製^):
+    echo  1. Conda 環境:  %YELLOW%conda activate comfyui%RESET%
+    echo  2. venv 環境 :  %YELLOW%venv\Scripts\activate%RESET%
+    echo.
+    if defined SUGGESTED_PYTHON (
+        echo %YELLOW%[提示] 便攜版用戶: 輸入 'p' 可直接使用偵測到的路徑。%RESET%
+    )
+    echo 請直接輸入上方指令並按 Enter。
+) else (
+    echo [Environment Activation] Enter command ^(Mandatory^)
+    echo.
+    echo Common Commands ^(Copy ^& Paste^):
+    echo  1. Conda Env :  %YELLOW%conda activate comfyui%RESET%
+    echo  2. venv Env  :  %YELLOW%venv\Scripts\activate%RESET%
+    echo.
+    if defined SUGGESTED_PYTHON (
+        echo %YELLOW%[Hint] Portable User: Type 'p' to use the detected path.%RESET%
+    )
+    echo Please enter the command above and press Enter.
+)
 echo --------------------------------------------------------
-set /p "NEED_ACTIVATE=Enter 'y' to activate, 'n' to skip: "
 
-if /i "%NEED_ACTIVATE%"=="n" goto RunInstall
-
-:ActivateBlock
-echo.
-echo Please enter your activation command below.
-echo   (e.g., "call conda activate comfyui" OR "call venv\Scripts\activate")
+set "ACT_CMD="
 set /p "ACT_CMD=Command > "
+
+if /i "%ACT_CMD%"=="p" goto UsePortable
+if "%ACT_CMD%"=="" (
+    echo.
+    if "%L_CHOICE%"=="2" (
+        echo %RED%[錯誤] 此為強制步驟，請輸入指令或 'p'。%RESET%
+    ) else (
+        echo %RED%[Error] This step is mandatory. Input required.%RESET%
+    )
+    goto AskEnv
+)
 
 echo.
 echo [*] Executing: %ACT_CMD%
 call %ACT_CMD%
 
 if %errorlevel% neq 0 (
-    echo %RED%[Warning] Activation might have failed.%RESET%
+    echo %RED%[Warning] Activation Failed! Please try again.%RESET%
+    echo.
+    pause
+    goto AskEnv
 ) else (
     echo %YELLOW%[Success] Environment command executed.%RESET%
     set ENV_ACTIVATED=1
+    set "PYTHON_CMD=python"
 )
+goto RunInstallDirect
 
-:RunInstall
+:UsePortable
+echo.
+echo %YELLOW%[*] Using Portable Python Path: %SUGGESTED_PYTHON%%RESET%
+set "PYTHON_CMD=%SUGGESTED_PYTHON%"
+set ENV_ACTIVATED=1
+goto RunInstallDirect
+
+:RunInstallDirect
 echo.
 echo --------------------------------------------------------
-echo Active Python Environment:
-where python
+if "%L_CHOICE%"=="2" (
+    echo 當前使用的 Python 指令/路徑:
+) else (
+    echo Active Python Interpreter Command:
+)
+echo %PYTHON_CMD%
 echo --------------------------------------------------------
 echo.
 
-:: Pass the language argument here too
-:: 【修改處 2】將 auto_runner.py 改為 auto_installer.py
-python auto_installer.py --install %LANG_CMD%
+"%PYTHON_CMD%" auto_installer.py --install %LANG_CMD%
 
 echo.
 pause
 goto MainMenu
 
-:: ----------------------------------------------------------
 :End
 echo.
 echo Goodbye!

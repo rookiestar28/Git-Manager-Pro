@@ -2,9 +2,12 @@ import os
 import subprocess
 import sys
 import platform
+import time
 from pathlib import Path
 
-IGNORE_LIST = ["__pycache__", ".git", ".vscode", "venv", "env", ".idea"]
+IGNORE_LIST = ["__pycache__", ".git", ".vscode", "venv", "env", ".idea", "python_embeded"]
+MAX_RETRIES = 3  
+PIP_TIMEOUT = 60 
 
 class Colors:
     GREEN = '\033[92m'
@@ -23,29 +26,23 @@ TEXT = {
         'menu_1': "1. Batch Git Clone (from list)",
         'menu_2': "2. Batch Install Dependencies (requirements.txt)",
         'menu_prompt': "Please select a mode (1 or 2): ",
-        'lang_prompt': "Select Language (1: EN, 2: CHT): ",
         
-        # Common
-        'path_prompt': "Please enter the target root directory: ",
+        'path_prompt': "Please enter the target ABSOLUTE PATH (e.g., D:\\ComfyUI\\custom_nodes): ",
         'path_invalid': "Directory does not exist. Create it? (y/n): ",
         'path_created': "Directory created: {}",
         'op_cancel': "Operation cancelled.",
         'done': "All tasks completed.",
-
-        # Clone Specific
-        'list_prompt': "Please enter the path to the URL list file (.txt): ",
-        'list_err': "File not found. Please try again.",
+        'list_prompt': "Please enter the path to the URL list file, or drag and drop it to here (.txt): ",
+        'list_err': "File not found.",
         'cloning': "  [*] Cloning: {}",
         'clone_success': "    -> [Success] Cloned '{}'",
         'clone_fail': "    -> [Failed] Error cloning '{}'",
         'clone_exists': "    -> [Skip] Folder '{}' already exists.",
-
-        # Install Specific
         'scanning': "Scanning directory: ",
         'found_req': "  [*] Found 'requirements.txt' in: ",
-        'installing': "    -> Installing dependencies (Stream output)...",
+        'installing': "    -> Installing dependencies (Attempt {}/{})...",
         'success': "    -> [Success] Dependencies installed for '{}'.",
-        'fail': "    -> [Failed] Error installing dependencies for '{}'.",
+        'fail': "    -> [Failed] Error installing dependencies for '{}' after retries.",
         'skip': "    -> [Skipped] No requirements.txt found.",
         'summary_header': " Execution Summary ",
         'conflict_header': " Error Report ",
@@ -55,29 +52,23 @@ TEXT = {
         'menu_1': "1. 批次複製專案 (Git Clone)",
         'menu_2': "2. 批次安裝依賴 (Install Dependencies)",
         'menu_prompt': "請選擇模式 (1 或 2): ",
-        'lang_prompt': "請選擇語言 (1: EN, 2: CHT): ",
 
-        # Common
-        'path_prompt': "請輸入目標根目錄路徑 (例如 custom_nodes): ",
+        'path_prompt': "請輸入目標資料夾的「絕對路徑」 (例如 D:\\ComfyUI\\custom_nodes): ",
         'path_invalid': "目錄不存在，是否建立？(y/n): ",
         'path_created': "已建立目錄: {}",
         'op_cancel': "作業已取消。",
         'done': "所有作業執行完畢。",
-
-        # Clone Specific
-        'list_prompt': "請輸入 URL 清單文件的路徑 (.txt): ",
+        'list_prompt': "請輸入 URL 清單文件的路徑，或直接拖移檔案加入此處 (.txt): ",
         'list_err': "找不到檔案，請重新輸入。",
         'cloning': "  [*] 正在複製專案: {}",
         'clone_success': "    -> [成功] 已複製 '{}'",
         'clone_fail': "    -> [失敗] 複製 '{}' 時發生錯誤",
         'clone_exists': "    -> [略過] 資料夾 '{}' 已存在。",
-
-        # Install Specific
         'scanning': "正在掃描目錄: ",
         'found_req': "  [*] 在目錄中找到 'requirements.txt': ",
-        'installing': "    -> 正在安裝依賴 (即時輸出)...",
+        'installing': "    -> 正在安裝依賴 (第 {}/{} 次嘗試)...",
         'success': "    -> [成功] 已安裝 '{}' 的依賴。",
-        'fail': "    -> [失敗] 安裝 '{}' 的依賴時發生錯誤。",
+        'fail': "    -> [失敗] 經重試後，安裝 '{}' 的依賴仍然失敗。",
         'skip': "    -> [略過] 未找到 requirements.txt。",
         'summary_header': " 執行結果統計 ",
         'conflict_header': " 錯誤報告 ",
@@ -99,10 +90,26 @@ def set_language_interactive():
     if lang_c == '2': current_lang = 'CHT'
     else: current_lang = 'EN'
 
+def read_file_safe(filepath):
+    """嘗試使用 utf-8 讀取，失敗則退回 cp950 (Windows 預設)"""
+    encodings = ['utf-8', 'cp950', 'gbk']
+    for enc in encodings:
+        try:
+            with open(filepath, 'r', encoding=enc) as f:
+                return [line.strip() for line in f if line.strip() and not line.startswith('#')]
+        except UnicodeDecodeError:
+            continue
+        except Exception as e:
+            print_color(Colors.RED, f"Read Error ({filepath}): {e}")
+            return []
+    print_color(Colors.RED, f"Failed to read file with known encodings: {filepath}")
+    return []
+
 def get_target_directory(allow_create=False):
     while True:
         print("")
         user_path = input(t('path_prompt')).strip().strip('"').strip("'")
+        if not user_path: continue
         path_obj = Path(user_path)
         
         if path_obj.is_dir():
@@ -151,8 +158,7 @@ def mode_git_clone():
         if list_path.is_file(): break
         print_color(Colors.RED, t('list_err'))
 
-    with open(list_path, 'r', encoding='utf-8') as f:
-        urls = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+    urls = read_file_safe(list_path)
 
     print("\n" + "-"*50)
     print(f"Target: {target_dir}")
@@ -179,7 +185,7 @@ def mode_git_clone():
 def extract_error_info(full_log):
     error_lines = []
     if not full_log: return error_lines
-    keywords = ["ERROR:", "conflict", "Conflict", "Incompatible", "ResolutionImpossible"]
+    keywords = ["ERROR:", "conflict", "Conflict", "Incompatible", "ResolutionImpossible", "Requirement already satisfied"]
     lines = full_log.splitlines()
     for line in lines:
         clean_line = line.strip()
@@ -207,22 +213,43 @@ def mode_install_dependencies():
     for item in items:
         if item.name in IGNORE_LIST: continue
         req_file = item / "requirements.txt"
+        
         if req_file.exists():
             print_color(Colors.CYAN, f"{t('found_req')}{item.name}")
-            print(t('installing'))
-            print("-" * 20 + " PIP LOG " + "-" * 20)
             
-            cmd = [python_exec, "-m", "pip", "install", "-r", req_file]
-            return_code, full_log = run_command_stream(cmd, cwd=item)
+            success = False
+            last_log = ""
             
+            for attempt in range(1, MAX_RETRIES + 1):
+                print(t('installing').format(attempt, MAX_RETRIES))
+                print("-" * 20 + f" PIP LOG (Try {attempt}) " + "-" * 20)
+                
+                cmd = [
+                    python_exec, "-m", "pip", "install", 
+                    "-r", str(req_file),
+                    "--no-cache-dir",
+                    f"--default-timeout={PIP_TIMEOUT}"
+                ]
+                
+                return_code, full_log = run_command_stream(cmd, cwd=item)
+                last_log = full_log
+
+                if return_code == 0:
+                    success = True
+                    break
+                else:
+                    print_color(Colors.YELLOW, f"    [Warning] Attempt {attempt} failed. Retrying...")
+                    time.sleep(2) 
+
             print("-" * 20 + " END LOG " + "-" * 20)
-            if return_code == 0:
+            
+            if success:
                 print_color(Colors.GREEN, t('success').format(item.name))
                 processed.append(item.name)
             else:
                 print_color(Colors.RED, t('fail').format(item.name))
                 failed.append(item.name)
-                conflict_details[item.name] = extract_error_info(full_log)
+                conflict_details[item.name] = extract_error_info(last_log)
         else:
             skipped.append(item.name)
         print("="*50 + "\n")
