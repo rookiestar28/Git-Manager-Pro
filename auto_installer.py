@@ -4,6 +4,7 @@ import sys
 import platform
 import time
 from pathlib import Path
+from typing import Dict, Optional 
 
 IGNORE_LIST = ["__pycache__", ".git", ".vscode", "venv", "env", ".idea", "python_embeded"]
 MAX_RETRIES = 3  
@@ -20,7 +21,7 @@ class Colors:
 if platform.system() == "Windows":
     os.system('color')
 
-TEXT = {
+TEXT: Dict[str, Dict[str, str]] = {
     'EN': {
         'menu_header': " AIGC Project Manager ",
         'menu_1': "1. Batch Git Clone (from list)",
@@ -77,8 +78,9 @@ TEXT = {
 
 current_lang = 'EN'
 
-def t(key):
-    return TEXT[current_lang].get(key, key)
+def t(key: str) -> str:
+    val = TEXT.get(current_lang, TEXT['EN']).get(key, key)
+    return str(val)
 
 def print_color(color, message):
     print(f"{color}{message}{Colors.RESET}")
@@ -91,12 +93,20 @@ def set_language_interactive():
     else: current_lang = 'EN'
 
 def read_file_safe(filepath):
-    """嘗試使用 utf-8 讀取，失敗則退回 cp950 (Windows 預設)"""
-    encodings = ['utf-8', 'cp950', 'gbk']
+    encodings = ['utf-8', 'utf-8-sig', 'utf-16', 'cp950', 'gbk', 'latin-1']
     for enc in encodings:
         try:
             with open(filepath, 'r', encoding=enc) as f:
-                return [line.strip() for line in f if line.strip() and not line.startswith('#')]
+                lines = []
+                for line in f:
+                    clean_line = line.strip()
+                    if not clean_line or clean_line.startswith('#'):
+                        continue
+                    if 'http' in clean_line and not clean_line.startswith('http'):
+                        start_idx = clean_line.find('http')
+                        clean_line = clean_line[start_idx:]
+                    lines.append(clean_line)
+                return lines
         except UnicodeDecodeError:
             continue
         except Exception as e:
@@ -138,6 +148,10 @@ def run_command_stream(command, cwd):
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
             text=True, encoding='utf-8', errors='replace', bufsize=1
         )
+        
+        if process.stdout is None:
+            return -1, "Error: stdout is not available."
+
         while True:
             output_line = process.stdout.readline()
             if output_line == '' and process.poll() is not None: break

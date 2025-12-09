@@ -14,6 +14,8 @@
 
 ---
 
+**2025/12/10 更新：** 新增 macOS 與 Linux 原生支援！已加入 `.sh` 啟動腳本，並更新 Unix 環境專用的操作說明文件。
+
 ## 核心功能
 
 ### 工具 1： Git Manager Pro (`manage_git_pro.py`)
@@ -41,6 +43,8 @@
 |:---------|:-----|
 | `GitManagerPro.bat` | **[啟動器]** Git Manager Pro 的互動式選單入口 (更新/重置)。 |
 | `Auto_Installer.bat` | **[啟動器]** Auto Installer 的互動式選單入口 (複製/安裝)。 |
+| `GitManagerPro.sh` | **[啟動器]** 適用於 **macOS/Linux** 的 Git Manager Pro 啟動入口。 |
+| `Auto_Installer.sh` | **[啟動器]** 適用於 **macOS/Linux** 的 Auto Installer 啟動入口。 |
 | `manage_git_pro.py` | 執行 Git 相關操作的核心 Python 腳本 (V4)。 |
 | `auto_installer.py` | 執行 Clone 與 Pip 安裝相關操作的核心 Python 腳本。 |
 
@@ -88,6 +92,42 @@
 3. 腳本自動偵測您的 Python 環境 (系統或便攜版)。
 4. 掃描所有子目錄的 `requirements.txt`。
 5. 開始安裝，並在結束時以顏色標示成功與失敗的項目。
+
+---
+
+### 3. macOS 與 Linux 用戶支援
+
+我們新增了專為 Unix 系統設計的 Shell 腳本（`.sh`）。功能與 Windows 版本一致，但針對終端機環境進行了優化。
+
+#### 首次設定
+
+在初次執行腳本前，必須賦予執行權限。請在腳本目錄下的終端機執行：
+
+```bash
+chmod +x GitManagerPro.sh Auto_Installer.sh
+```
+
+#### 啟動 Git Manager Pro（版本管理）
+
+```bash
+./GitManagerPro.sh
+```
+
+#### 啟動 Auto Installer（安裝工具）
+
+```bash
+./Auto_Installer.sh
+```
+
+#### 智慧環境偵測
+
+Linux/macOS 腳本設計為自動偵測您的 Python 設定，優先順序如下：
+
+1. **虛擬環境（venv）**：自動檢查當前或上層目錄是否存在 `venv` 或 `.venv` 資料夾。
+
+2. **系統 Python**：若未發現虛擬環境，則退回使用系統的 `python3`。
+
+**注意**：如果您使用的是 Conda，請確保在執行腳本前已激活環境（`conda activate environment_name`），或直接在已激活的 Conda Shell 中執行腳本即可。
 
 ---
 

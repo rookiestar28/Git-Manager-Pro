@@ -14,6 +14,8 @@ Whether you are using a system Python environment or the ComfyUI Portable (Embed
 
 ---
 
+**10/12 2025 Update:** Added native support for macOS and Linux! Introduced `.sh` launcher scripts and updated the documentation with specific guides for Unix environments.
+
 ## Key Features
 
 ### Tool 1: Git Manager Pro (`manage_git_pro.py`)
@@ -41,6 +43,8 @@ The ultimate solution for version control management.
 |:-----|:------------|
 | `GitManagerPro.bat` | **[Launcher]** The entry point for Git Manager Pro (Updates/Resets). |
 | `Auto_Installer.bat` | **[Launcher]** The entry point for the Auto Installer (Cloning/Installing). |
+| `GitManagerPro.sh` | **[Launcher]** The entry point for Git Manager Pro on **macOS/Linux**. |
+| `Auto_Installer.sh` | **[Launcher]** The entry point for the Auto Installer on **macOS/Linux**. |
 | `manage_git_pro.py` | The core Python script for Git operations (V4). |
 | `auto_installer.py` | The core Python script for Cloning and Pip operations. |
 
@@ -88,6 +92,38 @@ Scans and installs requirements for all nodes.
 3. The script detects the active Python environment.
 4. It scans all subdirectories for `requirements.txt`.
 5. It attempts to install dependencies and provides a colored summary report upon completion.
+
+### 3. Support for macOS & Linux Users
+
+We have introduced dedicated shell scripts (`.sh`) for Unix-based systems. The functionality mirrors the Windows version but is optimized for Terminal environments.
+
+#### **Initial Setup**
+Before running the scripts for the first time, you must grant execution permissions. Open your terminal in the script directory and run:
+
+```bash
+chmod +x GitManagerPro.sh Auto_Installer.sh
+
+#### **Launch Git Manager Pro**
+
+```bash
+./GitManagerPro.sh
+```
+
+#### **Launch Auto Installer**
+
+```bash
+./Auto_Installer.sh
+```
+
+#### **Smart Environment Detection**
+
+The Linux/macOS scripts are designed to automatically detect your Python setup in the following priority:
+
+1. **Virtual Environments (venv)**: It checks for `venv` or `.venv` directories in the current or parent folders.
+
+2. **System Python**: Falls back to `python3` if no virtual environment is found.
+
+**Note**: If you are using Conda, please ensure your environment is activated (`conda activate environment_name`) before running the scripts, or simply run the scripts from within your active Conda shell.
 
 ---
 
