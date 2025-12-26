@@ -136,10 +136,16 @@ class RepoInfo(NamedTuple):
     url: str = "" 
 
 
-def run_command(command: List[str], cwd: str) -> subprocess.CompletedProcess:
-    return subprocess.run(
-        command, cwd=cwd, capture_output=True, text=True, encoding='utf-8', errors='replace'
-    )
+def run_command(command: List[str], cwd: str, capture_output: bool = True) -> subprocess.CompletedProcess:
+    if capture_output:
+        return subprocess.run(
+            command, cwd=cwd, capture_output=True, text=True, encoding='utf-8', errors='replace'
+        )
+    else:
+        # When not capturing output, let stdout/stderr go to the console directly
+        return subprocess.run(
+            command, cwd=cwd, text=True, encoding='utf-8', errors='replace'
+        )
 
 def validate_timestamp(timestamp_str: str) -> bool:
     try:
@@ -201,7 +207,8 @@ def update_repo(repo: RepoInfo, mode: str) -> tuple[str, str]:
         print_color(Colors.HEADER, t('detect_sub'))
         git_command.append("--recurse-submodules")
     
-    result = run_command(git_command, cwd=str(project_path))
+    # We want to show the output for git pull
+    result = run_command(git_command, cwd=str(project_path), capture_output=False)
 
     if result.returncode == 0:
         print_color(Colors.GREEN, t('up_success').format(project_name))

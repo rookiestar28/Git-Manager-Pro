@@ -1,4 +1,4 @@
-# Git Manager Pro: The most powerful toolkit for managing ComfyUI custom nodes.
+# Git Manager Pro: The most powerful toolkit for managing ComfyUI custom nodes
 
 <div align="center">
     <strong>English</strong> | <a href="README.zh-TW.md"><strong>繁體中文</strong></a>
@@ -23,6 +23,7 @@ Whether you are using a system Python environment or the ComfyUI Portable (Embed
 The ultimate solution for version control management.
 
 - **Batch Update (Git Pull)**: Automatically update all nodes. Supports recursive updates for submodules.
+- **Real-time Streaming**: Displays detailed git output (e.g., file changes) directly in the terminal during updates.
 - **Smart Conversion**: Detects non-Git folders (unzipped/copied nodes) and converts them into proper Git repositories using a mapping list.
 - **Session Exclusion**: Temporarily skip specific nodes (e.g., `ComfyUI-Manager` or active development folders) during an update session.
 - **Time Machine (Git Reset)**: **[New]** Mass revert all repositories to a specific timestamp. Lifesaver when a global update breaks your workflow (Please also check if the default Python package versions for the nodes have been modified, and reinstall dependencies if necessary).
@@ -98,6 +99,7 @@ Scans and installs requirements for all nodes.
 We have introduced dedicated shell scripts (`.sh`) for Unix-based systems. The functionality mirrors the Windows version but is optimized for Terminal environments.
 
 #### **Initial Setup**
+
 Before running the scripts for the first time, you must grant execution permissions. Open your terminal in the script directory and run:
 
 ```bash
@@ -180,9 +182,3 @@ Contributions, issues, and feature requests are welcome! Feel free to check the 
 ## Contact
 
 For questions or support, please open an issue in the repository.
-
----
-
-<div align="center">
-Made with ❤️ for the ComfyUI Community
-</div>
