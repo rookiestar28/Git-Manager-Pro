@@ -1,57 +1,81 @@
 Desktop.ini
 
-# Agent/local project exclusions
+# Internal governance and research documents must never be tracked.
+.planning/
 .pla*/
-re*/
-RE*/
+ROADMAP.md
+roadmap.md
 ROA*.md
 roa*.md
+reference/
+REFERENCE/
+ref*/
+REF*/
+AGENTS.md
 AG*.md
+.sessions/
 
-# Secrets and local environment
-.env
-.env.*
-*.env
-!.env.example
-!.env.sample
-
-# Python
-__pycache__/
+# Python and local environments
+*.pyc
+*.pyo
+*.pyd
 *.py[cod]
 *$py.class
-.pytest_cache/
-.se*/
-.mypy_cache/
-.ruff_cache/
-.coverage
-coverage.xml
-htmlcov/
+__pycache__/
+venv/
+env/
 .venv/
 .venv-*/
-venv/
-ENV/
+.venv-wsl/
+.venv_cache/
+conda/
+conda-anaconda-tos/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+*.cover
+.dmypy.json
+dmypy.json
 
-# Node / frontend tests
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-playwright-report/
-test-results/
-coverage/
-
-# Build, cache, temp, and local tool output
-dist/
-build/
+# Tool caches, generated output, and local runtime data
 .cache/
 .tmp/
 tmp/
 temp/
 *.log
+logs/*
+!logs/.gitkeep
+docs/reference/
+docs/artifacts/
+dist/
+build/
+playwright/.cache/
+playwright-report/
+test-results/
+doctor_state/
+user/*
+!user/.gitkeep
 
-# OS and editor files
-.DS_Store
-Thumbs.db
+# Secrets, editors, and operating-system files
+.env
+.env.*
+*.env
+!.env.example
+!.env.sample
+.claude/
 .vscode/
 .idea/
+Thumbs.db
+.DS_Store
+
+# Node tooling
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
